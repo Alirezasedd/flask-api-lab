@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flask API Frontend</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+  <h1 class="mb-4">Flask API Frontend</h1>
+
+  <!-- Search -->
+  <div class="mb-3">
+    <input id="searchInput" class="form-control" placeholder="Search by first name"/>
+    <button onclick="searchPerson()" class="btn btn-primary mt-2">Search</button>
+  </div>
+
+  <!-- Add Person -->
+  <div class="card p-3 mb-3">
+    <h5>Add Person</h5>
+    <input id="firstName" class="form-control mb-2" placeholder="First Name"/>
+    <input id="lastName" class="form-control mb-2" placeholder="Last Name"/>
+    <input id="uuid" class="form-control mb-2" placeholder="UUID (copy from Mockaroo or generate)"/>
+    <button onclick="addPerson()" class="btn btn-success">Add Person</button>
+  </div>
+
+  <!-- Delete -->
+  <div class="card p-3 mb-3">
+    <h5>Delete Person</h5>
+    <input id="deleteId" class="form-control mb-2" placeholder="UUID to Delete"/>
+    <button onclick="deletePerson()" class="btn btn-danger">Delete</button>
+  </div>
+
+  <!-- Output -->
+  <div class="card p-3">
+    <h5>Result</h5>
+    <pre id="output" style="white-space: pre-wrap;"></pre>
+  </div>
+</div>
+
+<script>
+const API = "http://localhost:5000";
+
+function showOutput(data) {
+  document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+}
+
+function searchPerson() {
+  const name = document.getElementById("searchInput").value;
+  fetch(`${API}/name_search?q=${name}`)
+    .then(res => res.json())
+    .then(data => showOutput(data))
+    .catch(err => showOutput({ error: err.toString() }));
+}
+
+function addPerson() {
+  const person = {
+    id: document.getElementById("uuid").value,
+    first_name: document.getElementById("firstName").value,
+    last_name: document.getElementById("lastName").value,
+    graduation_year: 2000,
+    address: "123 Main St",
+    city: "City",
+    zip: "12345",
+    country: "Country",
+    avatar: "http://dummyimage.com/150x100.png"
+  };
+
+  fetch(`${API}/person`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(person)
+  })
+  .then(res => res.json())
+  .then(data => showOutput(data))
+  .catch(err => showOutput({ error: err.toString() }));
+}
+
+function deletePerson() {
+  const id = document.getElementById("deleteId").value;
+  fetch(`${API}/person/${id}`, { method: "DELETE" })
+    .then(res => res.json())
+    .then(data => showOutput(data))
+    .catch(err => showOutput({ error: err.toString() }));
+}
+</script>
+
+</body>
+</html>
